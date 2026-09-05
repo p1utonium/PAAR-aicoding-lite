@@ -1,0 +1,24 @@
+# Track only the public project areas below.
+/*
+!/.gitignore
+!/.gitattributes
+!/AGENTS.md
+!/README.md
+!/LICENSE
+!/NOTICE
+!/docs/
+!/scripts/
+!/tests/
+!/tools/
+!/work/
+!/start-monitor.cmd
+!/package.json
+
+**/node_modules/
+**/.env
+**/.env.*
+**/*.pem
+**/*.key
+**/__pycache__/
+**/.DS_Store
+**/Thumbs.db

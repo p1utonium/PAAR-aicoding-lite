@@ -1,0 +1,16 @@
+{
+  "name": "paar-aicoding-lite",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Lightweight PAAR/R5 workflow and local task map",
+  "license": "Apache-2.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "check": "node scripts/paar.mjs check",
+    "brief": "node scripts/paar.mjs brief",
+    "monitor": "node scripts/paar.mjs serve --open",
+    "test": "node --test tests/*.test.mjs"
+  }
+}

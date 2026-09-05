@@ -1,0 +1,130 @@
+{
+  "schema_version": 1,
+  "project": "PAAR-aicoding-lite",
+  "goal": "减少重复规则、登记和确认，同时保留验收证据、会话接续与任务地图。",
+  "phase": "Review",
+  "updated_at": "2026-09-06T00:54:23+08:00",
+  "scope": {
+    "allowed": [
+      "通用 PAAR / R5 文档",
+      "单一工作记录及校验、接续说明",
+      "只读任务监控地图",
+      "相关测试与公开发布说明"
+    ],
+    "excluded": [
+      "自动调用模型或执行开发命令",
+      "自动确认业务验收",
+      "并行写入与派发队列",
+      "生产部署与用户业务数据"
+    ]
+  },
+  "decisions": [
+    {
+      "question": "仓库名称、公开范围和许可证",
+      "answer": "PAAR-aicoding-lite；公开；Apache-2.0；只发布通用机制及任务地图。",
+      "by": "项目所有者（2026-09-06）"
+    },
+    {
+      "question": "首个优化结果",
+      "answer": "直接减少重复记录、低价值确认和状态维护，保留业务验收、接续及进度可见性。",
+      "by": "项目所有者（2026-09-06）"
+    },
+    {
+      "question": "本轮发布方式",
+      "answer": "远端访问异常，本轮只完成本地 Git 提交，恢复后再推送。",
+      "by": "项目所有者（2026-09-06）"
+    }
+  ],
+  "tasks": [
+    {
+      "id": "lean-loop",
+      "title": "首轮：精简执行路径与看板接入",
+      "status": "awaiting_acceptance",
+      "depends_on": [],
+      "next_action": "请用户体验地图、查看证据与接续方式；明确验收后再进入真实任务减负对比。",
+      "blocker": "",
+      "acceptance": [
+        {
+          "text": "一个入口和一份当前工作记录；无需任务卡或派发登记。",
+          "result": "passed",
+          "evidence": [
+            "docs/validation.md"
+          ]
+        },
+        {
+          "text": "看板直接读取同一记录，支持搜索、选择、状态定位与刷新。",
+          "result": "passed",
+          "evidence": [
+            "docs/validation.md"
+          ]
+        },
+        {
+          "text": "无证据不能声明完成；错误记录不覆盖上次有效显示。",
+          "result": "passed",
+          "evidence": [
+            "docs/validation.md"
+          ]
+        },
+        {
+          "text": "新进程可生成接续说明；真实陌生用户接续仍另行试用。",
+          "result": "passed",
+          "evidence": [
+            "docs/validation.md"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "real-trial",
+      "title": "真实任务减负对比",
+      "status": "planned",
+      "depends_on": [
+        "lean-loop"
+      ],
+      "next_action": "选择一个真实任务，记录干预、维护动作、返工和结果。",
+      "blocker": "",
+      "acceptance": [
+        {
+          "text": "同类任务的实际维护负担下降，业务验收标准不降低。",
+          "result": "pending",
+          "evidence": []
+        }
+      ]
+    },
+    {
+      "id": "r5-integration",
+      "title": "多闭环 R5 与需求变更",
+      "status": "planned",
+      "depends_on": [
+        "real-trial"
+      ],
+      "next_action": "验证依赖、共享约束、正常和异常集成路径。",
+      "blocker": "",
+      "acceptance": [
+        {
+          "text": "局部结果与完整业务路径均有证据。",
+          "result": "pending",
+          "evidence": []
+        }
+      ]
+    },
+    {
+      "id": "beginner-trial",
+      "title": "新手独立试用与定版",
+      "status": "planned",
+      "depends_on": [
+        "r5-integration"
+      ],
+      "next_action": "邀请未参与设计的用户试用并记录作者介入。",
+      "blocker": "",
+      "acceptance": [
+        {
+          "text": "用户能完成约定操作，清楚限制与失败处理方式。",
+          "result": "pending",
+          "evidence": []
+        }
+      ]
+    }
+  ],
+  "next_action": "首轮工具验证通过，等待用户业务体验验收；本轮只提交本地 Git，远端推送暂缓。"
+}

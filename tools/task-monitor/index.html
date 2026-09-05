@@ -1,0 +1,12 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PAAR-aicoding-lite · 任务监控地图</title>
+<link rel="stylesheet" href="/web/graph.css"><link rel="stylesheet" href="/web/style.css">
+<script defer src="/web/graph.js"></script><script type="module" src="/web/app.mjs"></script></head>
+<body><header><div><p class="eyebrow">PAAR-aicoding-lite / 单一工作记录</p><h1>任务监控地图</h1><p id="project">正在读取工作记录…</p></div><div class="connection"><span id="connection" role="status">连接中</span><button id="refresh">刷新</button></div></header>
+<main><section class="intro"><div><h2 id="goal">业务目标尚未加载</h2><p id="next">下一步尚未加载</p></div><div id="summary"></div></section>
+<p id="error" role="alert" hidden></p>
+<div class="workspace"><section class="map-panel" aria-label="业务闭环地图"><div id="graph"></div><p class="hint">点击节点查看验收与下一步；拖动移动、滚轮缩放。待业务验收与已验收分别显示。</p></section>
+<aside id="detail" aria-label="任务详情"><h2>选择一个任务</h2><p>这里展示同一份工作记录中的状态、验收和证据。</p></aside></div>
+<section class="bottom"><div><h2>全部任务</h2><div id="task-list"></div></div><div><h2>已确认的决定</h2><div id="decisions"></div></div></section>
+</main><footer><span id="updated">尚未取得记录</span><span>只读 · 每 3 秒重新读取 · 不自动执行或确认验收</span></footer></body></html>
