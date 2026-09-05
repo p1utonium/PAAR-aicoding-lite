@@ -8,6 +8,9 @@ function showDetail() {
   const task = record?.tasks.find(t => t.id === selected);
   if (!task) { box.append(text('h2','选择一个任务'),text('p','查看它的验收条件、证据和下一步。')); return; }
   box.append(text('span',STATUSES[task.status],'badge ' + task.status),text('h2',task.title),text('p',task.next_action));
+  if (task.depends_on.length) box.append(text('p', '开工条件：' + (task.allow_unaccepted_dependencies
+    ? '前置内部验证通过即可；授权决定：' + task.allow_unaccepted_dependencies + '。不代表前置已获业务验收。'
+    : '前置任务已获业务验收。'), 'hint'));
   if (task.blocker) box.append(text('p','阻塞：' + task.blocker,'warning'));
   box.append(text('h3','验收条件'));
   for (const item of task.acceptance) {

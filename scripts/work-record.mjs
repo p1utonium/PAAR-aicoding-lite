@@ -28,6 +28,13 @@ export function validateRecord(record) {
     for (const key of ['title', 'next_action']) if (!nonempty(task[key])) fail(at + key + ' 不能为空');
     if (!Object.hasOwn(STATUSES, task.status)) fail(at + 'status 无效');
     if (!list(task.depends_on) || task.depends_on.some(x => !nonempty(x)) || new Set(task.depends_on).size !== task.depends_on.length) fail(at + 'depends_on 无效或重复');
+    if (Object.hasOwn(task, 'allow_unaccepted_dependencies')) {
+      const decision = task.allow_unaccepted_dependencies;
+      if (!nonempty(decision) || !list(record.decisions) ||
+          record.decisions.filter(d => object(d) && d.question === decision).length !== 1) {
+        fail(at + 'allow_unaccepted_dependencies 必须引用唯一的已确认决定 question');
+      }
+    }
     if (task.status === 'blocked' && !nonempty(task.blocker)) fail(at + '阻塞时必须说明 blocker');
     if (!list(task.acceptance) || !task.acceptance.length) { fail(at + '至少提供一个验收条件'); continue; }
     for (const item of task.acceptance) {
@@ -56,8 +63,14 @@ export function validateRecord(record) {
   for (const task of tasks.values()) if (list(task.depends_on)) visit(task.id);
   const active = record.tasks.filter(t => ['in_progress', 'verifying'].includes(t?.status));
   if (active.length > 1) fail('首版只允许一个正在实施或验证的任务');
-  for (const task of active) {
-    if (list(task.depends_on) && task.depends_on.some(id => tasks.get(id)?.status !== 'done')) fail(task.id + ': 前置任务未验收，不能开始实施');
+  // Check progressed tasks too: changing the status must not bypass dependencies.
+  for (const task of record.tasks.filter(t => ['in_progress', 'verifying', 'awaiting_acceptance', 'done'].includes(t.status))) {
+    const ready = task.allow_unaccepted_dependencies ? ['done', 'awaiting_acceptance'] : ['done'];
+    if (task.depends_on.some(id => !ready.includes(tasks.get(id)?.status))) {
+      fail(task.id + (task.allow_unaccepted_dependencies
+        ? ': 前置任务未通过内部验证，不能推进实施'
+        : ': 前置任务未验收，不能推进实施；提前继续须引用用户已确认决定'));
+    }
   }
   return [...new Set(errors)];
 }
@@ -71,6 +84,9 @@ export function brief(record) {
     '', ...active.flatMap(t => [
       '## ' + t.title + ' · ' + STATUSES[t.status],
       '记录标识：' + t.id + '；前置任务：' + (t.depends_on.join('、') || '无'),
+      ...(t.depends_on.length ? ['开工条件：' + (t.allow_unaccepted_dependencies
+        ? '前置内部验证通过即可；授权决定：' + t.allow_unaccepted_dependencies + '。不代表前置已获业务验收。'
+        : '前置任务已获业务验收。')] : []),
       '下一步：' + t.next_action,
       ...(t.blocker ? ['阻塞：' + t.blocker] : []),
       ...t.acceptance.flatMap(a => ['- ' + a.text + ' [' + a.result + ']', ...a.evidence.map(ref => '  证据：' + ref)])

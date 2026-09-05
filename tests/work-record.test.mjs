@@ -35,3 +35,46 @@ test('graph and handoff derive state from the same record',()=>{const r=base();a
 test('new CLI process resumes from current files',()=>{const output=execFileSync(process.execPath,['scripts/paar.mjs','brief','work/example.json'],{cwd:ROOT,encoding:'utf8'});assert.match(output,/我的业务项目/);assert.match(output,/整体下一步/);assert.doesNotMatch(output,/dispatch_id|Candidate/);});
 test('evidence must exist inside the selected project',async()=>{const outer=await mkdtemp(join(tmpdir(),'paar-evidence-'));const root=join(outer,'project');await mkdir(root);const r=base();r.tasks[0].acceptance[0].evidence=['proof.md'];const path=join(root,'work.json');await writeFile(path,JSON.stringify(r));await assert.rejects(loadRecord(path,root),/不存在/);await writeFile(join(root,'proof.md'),'Observed result');assert.equal((await loadRecord(path,root)).project,'样例');r.tasks[0].acceptance[0].evidence=['../outside.md'];await writeFile(join(root,'..','outside.md'),'outside');await writeFile(path,JSON.stringify(r));await assert.rejects(loadRecord(path,root),/项目外/);});
 test('directory cannot be evidence',async()=>{const root=await mkdtemp(join(tmpdir(),'paar-dir-'));await mkdir(join(root,'proof'));const r=base();r.tasks[0].acceptance[0].evidence=['proof'];const path=join(root,'work.json');await writeFile(path,JSON.stringify(r));await assert.rejects(loadRecord(path,root),/普通文件/);});
+
+function dependentRecord() {
+ const r=base();
+ r.decisions=[{question:'后移人工验收',answer:'允许内部验证通过后继续后续工程。',by:'试验用户'}];
+ r.tasks[0].status='awaiting_acceptance';
+ r.tasks[0].acceptance[0]={text:'保存后可读',result:'passed',evidence:['proof.md']};
+ r.tasks.push({id:'next',title:'后续工程',status:'in_progress',depends_on:['save'],next_action:'实施',blocker:'',
+  acceptance:[{text:'完成关联功能',result:'pending',evidence:[]}]});
+ return r;
+}
+test('default dependency still waits for business acceptance',()=>{
+ const r=dependentRecord();assert.match(validateRecord(r).join('\n'),/前置任务未验收/);
+ r.tasks[0].status='done';r.tasks[0].accepted_by='试验用户';assert.deepEqual(validateRecord(r),[]);
+});
+test('scoped authorization permits verified predecessor without changing acceptance',()=>{
+ const r=dependentRecord();r.tasks[1].allow_unaccepted_dependencies='后移人工验收';
+ const before=JSON.stringify(r);assert.deepEqual(validateRecord(r),[]);assert.equal(JSON.stringify(r),before);
+ assert.equal(r.tasks[0].status,'awaiting_acceptance');assert.equal(r.tasks[0].accepted_by,undefined);
+ assert.equal(graphModel(r).tasks[0].operational_status,'待业务验收');assert.match(brief(r),/不代表前置已获业务验收/);
+});
+for(const authorization of ['',true,'未记录的授权']) test('missing or malformed authorization is rejected: '+String(authorization),()=>{
+ const r=dependentRecord();r.tasks[1].allow_unaccepted_dependencies=authorization;
+ assert.match(validateRecord(r).join('\n'),/必须引用唯一/);
+});
+test('ambiguous authorization is rejected',()=>{
+ const r=dependentRecord();r.decisions.push({...r.decisions[0]});r.tasks[1].allow_unaccepted_dependencies='后移人工验收';
+ assert.match(validateRecord(r).join('\n'),/必须引用唯一/);
+});
+for(const status of ['planned','blocked','verifying']) test('authorization cannot bypass unready predecessor: '+status,()=>{
+ const r=dependentRecord();r.tasks[0].status=status;r.tasks[0].blocker='尚需检查';r.tasks[1].allow_unaccepted_dependencies='后移人工验收';
+ assert.match(validateRecord(r).join('\n'),/未通过内部验证/);
+});
+test('authorization cannot bypass failed evidence or fabricate acceptance',()=>{
+ const r=dependentRecord();r.tasks[1].allow_unaccepted_dependencies='后移人工验收';
+ r.tasks[0].acceptance[0].result='failed';assert.match(validateRecord(r).join('\n'),/未全部验证通过/);
+ r.tasks[0].acceptance[0].result='passed';r.tasks[0].status='done';assert.match(validateRecord(r).join('\n'),/accepted_by/);
+});
+for(const status of ['awaiting_acceptance','done']) test('jumping to later state cannot bypass dependency: '+status,()=>{
+ const r=dependentRecord();r.tasks[1].status=status;r.tasks[1].accepted_by='试验用户';
+ r.tasks[1].acceptance[0]={text:'完成关联功能',result:'passed',evidence:['proof.md']};
+ assert.match(validateRecord(r).join('\n'),/前置任务未验收/);
+ r.tasks[1].allow_unaccepted_dependencies='后移人工验收';assert.deepEqual(validateRecord(r),[]);
+});

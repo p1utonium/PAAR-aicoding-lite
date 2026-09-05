@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "project": "PAAR-aicoding-lite",
-  "goal": "减少重复规则、登记和确认，同时保留验收证据、会话接续与任务地图。",
+  "goal": "准备朋友可试用的轻量 AI 开发机制：先改善新人入口并完成内部复杂任务验证，再收集真实用户反馈。",
   "phase": "Review",
-  "updated_at": "2026-09-06T00:54:23+08:00",
+  "updated_at": "2026-09-06T01:24:38+08:00",
   "scope": {
     "allowed": [
       "通用 PAAR / R5 文档",
@@ -33,6 +33,16 @@
       "question": "本轮发布方式",
       "answer": "远端访问异常，本轮只完成本地 Git 提交，恢复后再推送。",
       "by": "项目所有者（2026-09-06）"
+    },
+    {
+      "question": "人工验收时点与内部试验",
+      "answer": "用户目前没有待开发需求；地图已看到不代表机制变轻。先准备朋友可试用版，人工验收后移，内部验证继续；历史闭环或任务可作为候选素材，尚未开始重跑。",
+      "by": "项目所有者（2026-09-06）"
+    },
+    {
+      "question": "修正工程依赖并仅提交本地",
+      "answer": "前置内部验证通过且用户允许继续时，后续工程无需等待人工验收；保留未验收状态。本轮修正与既有规划调整提交本地 Git，提交说明详细列项，暂不推送。",
+      "by": "项目所有者（2026-09-06）"
     }
   ],
   "tasks": [
@@ -41,7 +51,7 @@
       "title": "首轮：精简执行路径与看板接入",
       "status": "awaiting_acceptance",
       "depends_on": [],
-      "next_action": "请用户体验地图、查看证据与接续方式；明确验收后再进入真实任务减负对比。",
+      "next_action": "保留内部验证通过、业务未验收的结论；验收后移，不以当前地图观察代替机制减负验收。",
       "blocker": "",
       "acceptance": [
         {
@@ -75,21 +85,52 @@
       ]
     },
     {
-      "id": "real-trial",
-      "title": "真实任务减负对比",
+      "id": "newcomer-entry",
+      "title": "新人上手入口与试用准备",
       "status": "planned",
       "depends_on": [
         "lean-loop"
       ],
-      "next_action": "选择一个真实任务，记录干预、维护动作、返工和结果。",
+      "next_action": "文字指引及工程依赖修正已完成内部验证；下一步完善环境检查、失败恢复与目标项目接入。新人入口整体尚未完成或验收。",
       "blocker": "",
       "acceptance": [
         {
-          "text": "同类任务的实际维护负担下降，业务验收标准不降低。",
+          "text": "新人可按说明开始，并由执行者处理技术记录；不覆盖已有目标项目规则。",
+          "result": "pending",
+          "evidence": []
+        },
+        {
+          "text": "环境缺失或启动失败时有清楚的原因和恢复步骤；干净环境内部试走完成。",
+          "result": "pending",
+          "evidence": []
+        },
+        {
+          "text": "人工验收后移不阻止获授权的工程准备，也不伪造验收人或删除真实依赖。",
+          "result": "passed",
+          "evidence": [
+            "docs/validation.md"
+          ]
+        }
+      ],
+      "allow_unaccepted_dependencies": "修正工程依赖并仅提交本地"
+    },
+    {
+      "id": "real-trial",
+      "title": "内部复杂任务试验与负担观察",
+      "status": "planned",
+      "depends_on": [
+        "newcomer-entry"
+      ],
+      "next_action": "选择可复现起点的历史需求或通用改写，在独立测试工程覆盖关联功能、变化和新会话接续；报告熟悉度与基线限制。",
+      "blocker": "",
+      "acceptance": [
+        {
+          "text": "实际运行完整业务场景，记录干预、维护和返工；不以已完成代码复测冒充重新开发，不在缺少基线时声称提效比例。",
           "result": "pending",
           "evidence": []
         }
-      ]
+      ],
+      "allow_unaccepted_dependencies": "人工验收时点与内部试验"
     },
     {
       "id": "r5-integration",
@@ -106,7 +147,8 @@
           "result": "pending",
           "evidence": []
         }
-      ]
+      ],
+      "allow_unaccepted_dependencies": "人工验收时点与内部试验"
     },
     {
       "id": "beginner-trial",
@@ -115,7 +157,7 @@
       "depends_on": [
         "r5-integration"
       ],
-      "next_action": "邀请未参与设计的用户试用并记录作者介入。",
+      "next_action": "内部试走与复杂路径验证后，分享有限范围版本给朋友，观察独立使用并按实际反馈优化。",
       "blocker": "",
       "acceptance": [
         {
@@ -123,8 +165,9 @@
           "result": "pending",
           "evidence": []
         }
-      ]
+      ],
+      "allow_unaccepted_dependencies": "人工验收时点与内部试验"
     }
   ],
-  "next_action": "首轮工具验证通过，等待用户业务体验验收；本轮只提交本地 Git，远端推送暂缓。"
+  "next_action": "本轮依赖判断修正及规划文档仅提交本地 Git；继续准备新人入口，人工验收后移。历史复杂任务试验尚未开始。"
 }
